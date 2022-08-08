@@ -1,6 +1,9 @@
 module Main where
 
-import Board
+import Types
+import Game
+import Presentation
+import Match
 
 main :: IO ()
 main = do 
