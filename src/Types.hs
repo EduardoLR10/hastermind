@@ -5,6 +5,8 @@ data Color = Green | Blue | Red | Yellow | Pink | Brown | Orange | Purple | Whit
 type Position = Int
 type Alert = String
 type Guess = [Color]
+type Round = Int
+type Rounds = Int
 
 type Name = String
 type Master = String
@@ -17,7 +19,7 @@ data Player = Player
 makePlayer :: Name -> Player
 makePlayer name = Player name 0 0
 
-data Status = Finished | Continue
+data Status = Prepared | Finished | Continue | ErrorInPrep
 
 data Secret = Secret
   { numberSlots :: !Int
@@ -32,16 +34,16 @@ data Play = Play
   , player :: !Player
   }
 
-data GameConfig = GameConfig
- { players :: ![Player]
- , secret :: !Secret
- }
+makeGame :: [Player] -> Master -> Secret -> Rounds -> Game
+makeGame p m s r = Game r 0 [] m p s
   
 data Game = Game
-  { roundsRemaning :: !Int
+  { roundsRemaining :: !Int
   , currentRound :: !Int
   , guessesHistory :: ![Play]
-  , status :: !Status
+  , master :: !Master
+  , players :: ![Player]
+  , secret :: !Secret
   }
            
 data Feedback = 

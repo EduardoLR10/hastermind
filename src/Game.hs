@@ -16,13 +16,11 @@ import Data.Foldable (for_)
 import Text.Read (readMaybe)
 import Data.Maybe
 
-checkSecret :: Guess -> ReaderT GameConfig IO Status
-checkSecret guess = do
-  gameConfig <- ask
-  let code = secretCode $ secret gameConfig
-  if guess == code
-    then return Finished
-    else return Continue
+checkSecret :: Guess -> Secret -> Status
+checkSecret guess secret = do
+  if guess == secretCode secret
+    then Finished
+    else Continue
 
 askForPlayers :: MaybeT IO [Player]
 askForPlayers = do
@@ -71,8 +69,25 @@ askForSecret master = do
                       askAndCheckColor
         Just color -> return color
 
-play :: StateT Game (MaybeT IO) ()
-play = undefined
+prepare :: StateT Game (MaybeT IO) Status
+prepare = do
+  players <- liftIO (runMaybeT askForPlayers)
+  case players of
+    Nothing -> do liftIO errorInvalidPlayers
+                  return ErrorInPrep
+    Just ps -> do
+      master <- liftIO (runMaybeT $ askForMaster ps)
+      case master of
+        Nothing -> do liftIO errorInvalidMaster
+                      return ErrorInPrep
+        Just m -> do secret <- liftIO (runMaybeT $ askForSecret m)
+                     case secret of
+                       Nothing -> do liftIO errorInvalidSecret
+                                     return ErrorInPrep
+                       Just s -> do game <- get
+                                    let newGame = makeGame ps m s 10
+                                    put newGame
+                                    return Prepared
 
 -- masterMind :: IO ()
 -- masterMind = do

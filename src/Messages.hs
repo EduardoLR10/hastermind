@@ -39,5 +39,8 @@ printChooseColor = putStrLn "Available Colors:"
 printAskHowManyColors :: IO ()
 printAskHowManyColors = putStrLn "How many colors the secret will have?"
 
+printEndGame :: IO ()
+printEndGame = putStrLn "| END GAME |"
+
 
                        
