@@ -25,9 +25,10 @@ source-repository head
 
 library
   exposed-modules:
+      Error
       Game
       Match
-      Presentation
+      Messages
       Types
   other-modules:
       Paths_hastermind
@@ -35,8 +36,10 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , errors
     , mtl
     , random
+    , transformers
   default-language: Haskell2010
 
 executable hastermind-exe
@@ -48,9 +51,11 @@ executable hastermind-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , errors
     , hastermind
     , mtl
     , random
+    , transformers
   default-language: Haskell2010
 
 test-suite hastermind-test
@@ -63,7 +68,9 @@ test-suite hastermind-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , errors
     , hastermind
     , mtl
     , random
+    , transformers
   default-language: Haskell2010

@@ -2,7 +2,8 @@ module Main where
 
 import Types
 import Game
-import Presentation
+import Messages
+import Error
 import Match
 
 main :: IO ()
