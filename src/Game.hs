@@ -69,6 +69,17 @@ askForSecret master = do
                       askAndCheckColor
         Just color -> return color
 
+askForRounds :: MaybeT IO Rounds
+askForRounds = do
+  liftIO printRequestForRounds
+  (howMany :: Maybe Int) <- liftIO $ readMaybe <$> getLine
+  case howMany of
+    Just n | even n -> do
+               hoistMaybe howMany
+    _ -> do
+      liftIO errorMustBeEvenRounds
+      askForRounds
+
 prepare :: StateT Game (MaybeT IO) Status
 prepare = do
   players <- liftIO (runMaybeT askForPlayers)
@@ -84,10 +95,15 @@ prepare = do
                      case secret of
                        Nothing -> do liftIO errorInvalidSecret
                                      return ErrorInPrep
-                       Just s -> do game <- get
-                                    let newGame = makeGame ps m s 10
-                                    put newGame
-                                    return Prepared
+                       Just s -> do
+                         rounds <- liftIO (runMaybeT askForRounds)
+                         case rounds of
+                           Nothing -> do liftIO errorInvalidRounds
+                                         return ErrorInPrep
+                           Just r -> do game <- get
+                                        let newGame = makeGame ps m s 10
+                                        put newGame
+                                        return Prepared
 
 -- masterMind :: IO ()
 -- masterMind = do

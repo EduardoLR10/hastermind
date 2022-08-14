@@ -3,6 +3,9 @@ module Error where
 errorMustBePositiveNumber :: IO ()
 errorMustBePositiveNumber = putStrLn "It must be a positive number!"
 
+errorMustBeEvenRounds :: IO ()
+errorMustBeEvenRounds = putStrLn "You must play an even number of rounds!"
+
 errorNoPlayers :: IO ()
 errorNoPlayers = putStrLn "Insufficient players to play the game!"
 
@@ -20,4 +23,7 @@ errorInvalidMaster = putStrLn "Something went wrong with the selecting a master!
 
 errorInvalidSecret :: IO ()
 errorInvalidSecret = putStrLn "Something went wrong with the selecting a secret!"
+
+errorInvalidRounds :: IO ()
+errorInvalidRounds = putStrLn "Something went wrong with the selecting a number of rounds!"
 
