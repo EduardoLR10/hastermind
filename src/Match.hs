@@ -6,7 +6,7 @@ matchPlayers :: [Player]
 matchPlayers = [
   Player "Eduardo" 0 0,
   Player "Justin" 0 0,
-  Player "Noth" 0 0
+  Player "Jared" 0 0
   ]
  
 matchSecret :: Secret
