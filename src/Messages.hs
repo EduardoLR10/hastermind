@@ -39,8 +39,11 @@ printChooseColor = putStrLn "Available Colors:"
 printAskHowManyColors :: IO ()
 printAskHowManyColors = putStrLn "How many colors the secret will have?"
 
+printAskMastersFdbck :: IO ()
+printAskMastersFdbck = putStrLn "Mastermind, how did the codebreaker do? \n"
+                    "1: One token is both correct color, and in right position \n"
+                    "2: One token is correct color, but wrong position \n" 
+                    "3: No additional tokens need feedback \n"
+
 printEndGame :: IO ()
 printEndGame = putStrLn "| END GAME |"
-
-
-                       
