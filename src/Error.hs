@@ -1,7 +1,7 @@
 module Error where
 
 errorMustBePositiveNumber :: IO ()
-errorMustBePositiveNumber = putStrLn "It must be a positive number!"
+errorMustBePositiveNumber = putStrLn "You must enter a positive number!"
 
 errorMustBeEvenRounds :: IO ()
 errorMustBeEvenRounds = putStrLn "You must play an even number of rounds!"
