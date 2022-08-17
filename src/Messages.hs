@@ -40,7 +40,7 @@ printAskHowManyColors :: IO ()
 printAskHowManyColors = putStrLn "How many colors the secret will have?"
 
 printAskMastersFdbck :: IO ()
-printAskMastersFdbck = putStrLn "Mastermind, how did the codebreaker do? 1: One token is both correct color, and in right position 2: One token is correct color, but wrong position 3: No additional tokens need feedback"
+printAskMastersFdbck = putStrLn "Mastermind, how did the codebreaker do? \n \t 1: One token is both correct color, and in right position \n \t 2: One token is correct color, but wrong position \n \t 3: No additional tokens need feedback \n"
 
 printEndGame :: IO ()
 printEndGame = putStrLn "| END GAME |"
