@@ -72,15 +72,15 @@ askForSecret master = do
 --askMasterFdbck :: IO [Feedback] 
 --askMasterFdbck = do
 --    printAskMastersFdbck
---    Fdbck <-  replicateM 4 . liftIO $ getLine 
+--    Fdbck <-  replicateM (length secret - 1) . liftIO $ getLine 
 --      case Fdbck of
---            | 1 -> "!" :: Exclamation
---            | 2 -> "X" :: X
---            | 3 -> " " :: None
---            | _ -> putStrLn "Please select '1', '2', or '3' to give proper feedback"
+--             1 -> "!" :: Exclamation
+--             2 -> "X" :: X
+--             3 -> " " :: None
+--             _ -> putStrLn "Please select '1', '2', or '3' to give proper feedback"
 --                askMasterFdbck
 --         return Fdbck
-        -- take four getLines from master and put it in a single list of Feedback;
+       -- take four getLines from master and put it in a single list of Feedback;
 
 prepare :: StateT Game (MaybeT IO) Status
 prepare = do
