@@ -31,6 +31,7 @@ makeSecret colors = Secret (length colors) colors
 
 data Play = Play
   { guess :: !Guess
+   --, fdbck :: !Feedback
   , player :: !Player
   }
 
@@ -41,6 +42,7 @@ data Game = Game
   { roundsRemaining :: !Int
   , currentRound :: !Int
   , guessesHistory :: ![Play]
+  --, fdbckHistory :: ![Play]
   , master :: !Master
   , players :: ![Player]
   , secret :: !Secret
