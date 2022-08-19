@@ -1,6 +1,6 @@
 module Types where
 
-data Color = Green | Blue | Red | Yellow | Pink | Brown | Orange | Purple | White deriving (Show, Eq, Read)
+data Color = Green | Blue | Red | Yellow | Pink | Brown | Orange | Purple | White deriving (Show, Eq, Read, Enum, Bounded)
 
 type Position = Int
 type Alert = String

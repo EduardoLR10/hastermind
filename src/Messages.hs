@@ -44,3 +44,7 @@ printAskMastersFdbck = putStrLn "Mastermind, how did the codebreaker do? \n \t 1
 
 printEndGame :: IO ()
 printEndGame = putStrLn "| END GAME |"
+
+printAvailableColors :: IO ()
+printAvailableColors = putStrLn $ foldMap display [minBound :: Color ..maxBound] ++ "|"
+  where display color = "| " ++ show color ++ " "
