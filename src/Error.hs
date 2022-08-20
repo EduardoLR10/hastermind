@@ -27,3 +27,8 @@ errorInvalidSecret = putStrLn "Something went wrong with the selecting a secret!
 errorInvalidRounds :: IO ()
 errorInvalidRounds = putStrLn "Something went wrong with the selecting a number of rounds!"
 
+errorInPreparation :: IO ()
+errorInPreparation = putStrLn "Something went wrong during preparation!"
+
+errorInvalidGuess :: IO ()
+errorInvalidGuess = putStrLn "Something went wrong when taking a guess!"

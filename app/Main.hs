@@ -4,7 +4,7 @@ import Types
 import Game
 import Messages
 import Error
-import Match
+import Debug
 
 main :: IO ()
 main = do 

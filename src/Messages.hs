@@ -12,8 +12,8 @@ showPlayers players = foldl' showName "" players
 printWelcome :: IO ()
 printWelcome = putStrLn "Welcome to Hastermind! The mastermind game written in Haskell!"
 
-printRequestForRounds :: IO ()
-printRequestForRounds = putStr "How many rounds you guys will play?\nRounds: "
+printAskRounds :: IO ()
+printAskRounds = putStr "How many rounds you guys will play?\nRounds: "
 
 printAddPlayers :: IO ()
 printAddPlayers = putStrLn "| Adding players to the Game |"
@@ -30,6 +30,9 @@ printChooseMaster = putStrLn "Available Players:"
 printSecretSelection :: IO ()
 printSecretSelection = putStrLn "| Secret Selection |"
 
+printTakeGuess :: Player -> IO ()
+printTakeGuess player = putStrLn $ "Player " ++ show (name player) ++ "! It is your round! Take your guess!"
+
 printCallForMaster :: Master -> IO ()
 printCallForMaster master = putStrLn $ "Master " ++ show master ++ "! You shall pick your secret code!"
 
@@ -44,6 +47,9 @@ printAskMastersFdbck = putStrLn "Mastermind, how did the codebreaker do? \n \t 1
 
 printEndGame :: IO ()
 printEndGame = putStrLn "| END GAME |"
+
+printWinner :: Name -> IO ()
+printWinner name = putStrLn $ "\n\n| Congrats " ++ name ++ " ! You won! |\n\n"
 
 printAvailableColors :: IO ()
 printAvailableColors = putStrLn $ foldMap display [minBound :: Color ..maxBound] ++ "|"

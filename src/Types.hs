@@ -2,7 +2,6 @@ module Types where
 
 data Color = Green | Blue | Red | Yellow | Pink | Brown | Orange | Purple | White deriving (Show, Eq, Read, Enum, Bounded)
 
-type Position = Int
 type Alert = String
 type Guess = [Color]
 type Round = Int
@@ -19,7 +18,9 @@ data Player = Player
 makePlayer :: Name -> Player
 makePlayer name = Player name 0 0
 
-data Status = Prepared | Finished | Continue | ErrorInPrep
+data GameStatus = Finished | Continue
+
+data PrepStatus = Prepared | ErrorInPrep
 
 data Secret = Secret
   { numberSlots :: !Int
@@ -36,16 +37,17 @@ data Play = Play
   }
 
 makeGame :: [Player] -> Master -> Secret -> Rounds -> Game
-makeGame p m s r = Game r 0 [] m p s
+makeGame p m s r = Game r 0 [] [] m p s Continue
   
 data Game = Game
   { roundsRemaining :: !Int
   , currentRound :: !Int
   , guessesHistory :: ![Play]
-  --, fdbckHistory :: ![Play]
+  , fdbckHistory :: ![Feedback]
   , master :: !Master
   , players :: ![Player]
   , secret :: !Secret
+  , status :: !GameStatus
   }
            
 data Feedback = 

@@ -25,11 +25,12 @@ source-repository head
 
 library
   exposed-modules:
+      Debug
       Error
       Game
-      Match
       Messages
       Types
+      Utils
   other-modules:
       Paths_hastermind
   hs-source-dirs:
