@@ -68,10 +68,13 @@ printEndGame :: IO ()
 printEndGame = putStrLn "| END GAME |"
 
 printWinner :: Name -> IO ()
-printWinner name = putStrLn $ "\n\n| Congrats " ++ name ++ " ! You won! |\n\n"
+printWinner name = putStrLn $ "| Congrats " ++ name ++ "! You won! |\n"
 
 printOutOfRounds :: IO ()
-printOutOfRounds = putStrLn "\n| We reached the end of the game! |\n"
+printOutOfRounds = putStrLn "| We reached the maximum of rounds! |\n"
+
+printBreakerWon :: IO ()
+printBreakerWon = putStrLn "| A codebreaker discovered the secret! |\n"
 
 printAvailableColors :: IO ()
 printAvailableColors = putStrLn $ foldMap display [minBound :: Color ..maxBound] ++ "|"

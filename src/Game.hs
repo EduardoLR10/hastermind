@@ -12,7 +12,6 @@ import Error
 import Messages
 import Utils
 import Control.Error (MaybeT, hoistMaybe)
-import Data.Foldable (for_)
 import Text.Read (readMaybe)
 import Data.Maybe
 import Data.List
@@ -23,7 +22,7 @@ getStatus :: Guess -> Game -> GameStatus
 getStatus guess game = do
   if guess == secretCode (secret game)
     then BreakerWin
-    else if roundsRemaining game == 0
+    else if roundsRemaining game == 1
             then OutOfRounds
             else Continue
 
@@ -173,6 +172,7 @@ play = do
       liftIO printEndGame
       return OutOfRounds
     BreakerWin -> do
+      liftIO printBreakerWon
       let guesses = guessesHistory game
           lastGuess = head guesses
           winner = player lastGuess
