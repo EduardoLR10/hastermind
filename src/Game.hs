@@ -167,8 +167,7 @@ play = do
         Just g -> do
           let previousPlay = Play g currentPlayer
               newGame = advanceGame previousPlay game
-          liftIO $ putStrLn "Ask master for feedback"
-          askMasterFdbck
+          liftIO askMasterFdbck
           put newGame
           play
     
