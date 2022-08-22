@@ -16,12 +16,16 @@ import Data.Foldable (for_)
 import Text.Read (readMaybe)
 import Data.Maybe
 import Data.List
+import Data.Monoid
+import Data.Foldable
 
-getStatus :: Guess -> Secret -> GameStatus
-getStatus guess secret = do
-  if guess == secretCode secret
-    then Finished
-    else Continue
+getStatus :: Guess -> Game -> GameStatus
+getStatus guess game = do
+  if guess == secretCode (secret game)
+    then BreakerWin
+    else if roundsRemaining game == 0
+            then OutOfRounds
+            else Continue
 
 askForPlayers :: MaybeT IO [Player]
 askForPlayers = do
@@ -38,15 +42,17 @@ askForPlayers = do
       liftIO errorMustBePositiveNumber
       askForPlayers
 
-askForMaster :: [Player] -> MaybeT IO Master
+askForMaster :: [Player] -> MaybeT IO (Master, [Player])
 askForMaster players = do
   liftIO printMasterSelection
   liftIO printChooseMaster
-  candidate <- liftIO getLine
-  if candidate `elem` map name players
-    then MaybeT (return (Just candidate))
-    else do liftIO errorMustPickPlayer
-            askForMaster players
+  candidateName <- liftIO getLine
+  let candidate = find (\(Player name _ _) -> name == candidateName) players
+  case candidate of
+    Nothing -> do
+       liftIO errorMustPickPlayer
+       askForMaster players
+    Just c -> hoistMaybe $ Just (c {timesMaster = timesMaster c + 1}, filter (/= c) players)
 
 askForSecret :: Master -> MaybeT IO Secret
 askForSecret master = do
@@ -80,44 +86,37 @@ askForRounds = do
     _ -> do
       liftIO errorMustBeEvenRounds
       askForRounds
-
---askMasterFdbck :: IO [Feedback] 
---askMasterFdbck = do
---    printAskMastersFdbck
---    Fdbck <-  replicateM (length secret - 1) . liftIO $ getLine 
---      case Fdbck of
---             1 -> "!" :: Exclamation
---             2 -> "X" :: X
---             3 -> " " :: None
---             _ -> putStrLn "Please select '1', '2', or '3' to give proper feedback"
---                askMasterFdbck
---         return Fdbck
-       -- take four getLines from master and put it in a single list of Feedback;
         
 prepare :: StateT Game (MaybeT IO) PrepStatus
 prepare = do
   players <- liftIO (runMaybeT askForPlayers)
   case players of
-    Nothing -> do liftIO errorInvalidPlayers
+    Nothing -> do
+      liftIO errorInvalidPlayers
+      return ErrorInPrep
+    Just allPlayers -> do
+      roles <- liftIO (runMaybeT $ askForMaster allPlayers)
+      case roles of
+        Nothing -> do
+          liftIO errorInvalidMaster
+          return ErrorInPrep
+        Just (m, ps) -> do
+          secret <- liftIO (runMaybeT $ askForSecret m)
+          case secret of
+            Nothing -> do
+              liftIO errorInvalidSecret
+              return ErrorInPrep
+            Just s -> do
+              rounds <- liftIO (runMaybeT askForRounds)
+              case rounds of
+                Nothing -> do
+                  liftIO errorInvalidRounds
                   return ErrorInPrep
-    Just ps -> do
-      master <- liftIO (runMaybeT $ askForMaster ps)
-      case master of
-        Nothing -> do liftIO errorInvalidMaster
-                      return ErrorInPrep
-        Just m -> do secret <- liftIO (runMaybeT $ askForSecret m)
-                     case secret of
-                       Nothing -> do liftIO errorInvalidSecret
-                                     return ErrorInPrep
-                       Just s -> do
-                         rounds <- liftIO (runMaybeT askForRounds)
-                         case rounds of
-                           Nothing -> do liftIO errorInvalidRounds
-                                         return ErrorInPrep
-                           Just r -> do game <- get
-                                        let newGame = makeGame ps m s r
-                                        put newGame
-                                        return Prepared
+                Just r -> do
+                  game <- get
+                  let newGame = makeGame ps m s r
+                  put newGame
+                  return Prepared
 
 askForGuess :: Player -> Int -> MaybeT IO Guess
 askForGuess player secretSize = do
@@ -132,28 +131,56 @@ askForGuess player secretSize = do
                       askAndCheckColor
         Just color -> return color
 
-advanceGame :: Play -> Game -> Game
-advanceGame play game = newGame
-  where newGame = game { roundsRemaining = r, currentRound = c, guessesHistory = g, status = s}
+askMasterFdbck :: Secret -> MaybeT IO [Feedback] 
+askMasterFdbck secret = do
+    liftIO printAskMastersFdbck
+    let howMany = numberSlots secret
+    (maybeFdbcks :: [Maybe Feedback]) <-  liftIO $ replicateM (div howMany 2) (readMaybe <$> getLine)
+    let fdbcks = catMaybes maybeFdbcks
+    if length fdbcks == howMany
+      then hoistMaybe $ Just fdbcks
+      else hoistMaybe Nothing
+
+updatePlayerScore :: Player -> [Feedback] -> Player
+updatePlayerScore player feedbacks = player { score = currentScore + extraScore}
+  where currentScore = score player
+        (Sum extraScore) = foldMap (Sum . feedbackToScore) feedbacks
+
+feedbackToScore :: Feedback -> Points
+feedbackToScore Black = 5
+feedbackToScore White = 2
+feedbackToScore None = 0
+
+advanceGame :: Play -> Player -> Game -> Game
+advanceGame play player game = newGame
+  where newGame = game { roundsRemaining = r, currentRound = c, guessesHistory = g, status = s, players = ps}
         r = roundsRemaining game - 1
         c = currentRound game + 1
         g = guessesHistory game ++ [play]
-        s = getStatus (guess play) (secret game)
+        s = getStatus (guess play) game
+        ps = tail (players game) ++ [player]
 
 play :: StateT Game (MaybeT IO) GameStatus
 play = do
   game <- get
   case status game of
-    Finished -> do
+    OutOfRounds -> do
+      liftIO printOutOfRounds
+      let winner = maximum $ players game
+          winnerName = name winner
+      liftIO $ printWinner winnerName
+      liftIO printEndGame
+      return OutOfRounds
+    BreakerWin -> do
       let guesses = guessesHistory game
           lastGuess = head guesses
           winner = player lastGuess
           winnerName = name winner
       liftIO $ printWinner winnerName
       liftIO printEndGame
-      return Finished
+      return BreakerWin
     Continue -> do
-      liftIO $ putStrLn "Show the current round"
+      liftIO $ showCurrentRound game
       liftIO $ putStrLn "Show the board"
       let currentPlayer = head $ players game
           howMany = numberSlots $ secret game
@@ -161,13 +188,20 @@ play = do
       case guess of
         Nothing -> do
           liftIO errorInvalidGuess
-          return Finished
+          return GuessError
         Just g -> do
-          let previousPlay = Play g currentPlayer
-              newGame = advanceGame previousPlay game
-          liftIO $ putStrLn "Ask master for feedback"
-          put newGame
-          play
+          feedback <- liftIO (runMaybeT $ askMasterFdbck (secret game))
+          case feedback of
+            Nothing -> do
+              liftIO errorInvalidFeedback
+              return FeedbackError
+            Just f -> do
+              let previousPlay = Play g f currentPlayer
+                  newPlayer = updatePlayerScore currentPlayer f
+                  newGame = advanceGame previousPlay newPlayer game
+              put newGame
+              play
+    error -> return error              
     
 hastermind :: StateT Game (MaybeT IO) ()
 hastermind = do
@@ -179,7 +213,7 @@ hastermind = do
       return ()
     Prepared -> do
       initialGame <- get
-      liftIO $ runGame play initialGame
+      status <- liftIO $ runGame play initialGame
       return ()
 
 runGame :: StateT Game (MaybeT IO) a -> Game -> IO (Maybe (a, Game))
