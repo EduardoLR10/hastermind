@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE BlockArguments #-}
 module Game where
 import System.Random
 import Control.Monad.State
@@ -81,18 +82,18 @@ askForRounds = do
       liftIO errorMustBeEvenRounds
       askForRounds
 
---askMasterFdbck :: IO [Feedback] 
---askMasterFdbck = do
---    printAskMastersFdbck
---    Fdbck <-  replicateM (length secret - 1) . liftIO $ getLine 
---      case Fdbck of
---             1 -> "!" :: Exclamation
---             2 -> "X" :: X
---             3 -> " " :: None
---             _ -> putStrLn "Please select '1', '2', or '3' to give proper feedback"
---                askMasterFdbck
---         return Fdbck
-       -- take four getLines from master and put it in a single list of Feedback;
+askMasterFdbck :: IO [Feedback] 
+askMasterFdbck = do
+    printAskMastersFdbck
+    Fdbck <-  replicateM (length secret - 1) . liftIO $ getLine 
+      case Fdbck of
+             1 -> "!" :: Exclamation
+             2 -> "X" :: X
+             3 -> " " :: None
+             _ -> putStrLn "Please select '1', '2', or '3' to give proper feedback"
+                threadDelay 3000000 askMasterFdbck
+         return Fdbck
+       -- take length of secret # of getLines as feedback from master and put it in a list
         
 prepare :: StateT Game (MaybeT IO) PrepStatus
 prepare = do
@@ -134,11 +135,12 @@ askForGuess player secretSize = do
 
 advanceGame :: Play -> Game -> Game
 advanceGame play game = newGame
-  where newGame = game { roundsRemaining = r, currentRound = c, guessesHistory = g, status = s}
+  where newGame = game { roundsRemaining = r, currentRound = c, guessesHistory = g, status = s , fdbckHistory = f}
         r = roundsRemaining game - 1
         c = currentRound game + 1
         g = guessesHistory game ++ [play]
         s = getStatus (guess play) (secret game)
+        f = fdbckHistory game ++ [play]
 
 play :: StateT Game (MaybeT IO) GameStatus
 play = do
@@ -165,7 +167,7 @@ play = do
         Just g -> do
           let previousPlay = Play g currentPlayer
               newGame = advanceGame previousPlay game
-          liftIO $ putStrLn "Ask master for feedback"
+          liftIO askMasterFdbck
           put newGame
           play
     
