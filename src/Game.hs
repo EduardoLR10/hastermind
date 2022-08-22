@@ -133,11 +133,12 @@ askForGuess player secretSize = do
 
 askMasterFdbck :: Secret -> MaybeT IO [Feedback] 
 askMasterFdbck secret = do
-    liftIO printAskMastersFdbck
     let howMany = numberSlots secret
-    (maybeFdbcks :: [Maybe Feedback]) <-  liftIO $ replicateM (div howMany 2) (readMaybe <$> getLine)
+        feedbackSlots = div howMany 2
+    liftIO $ printAskMastersFdbck feedbackSlots
+    (maybeFdbcks :: [Maybe Feedback]) <-  liftIO $ replicateM feedbackSlots (readMaybe <$> getLine)
     let fdbcks = catMaybes maybeFdbcks
-    if length fdbcks == howMany
+    if length fdbcks == feedbackSlots
       then hoistMaybe $ Just fdbcks
       else hoistMaybe Nothing
 
@@ -180,8 +181,7 @@ play = do
       liftIO printEndGame
       return BreakerWin
     Continue -> do
-      liftIO $ showCurrentRound game
-      liftIO $ putStrLn "Show the board"
+      liftIO $ showRoundAndBoard game
       let currentPlayer = head $ players game
           howMany = numberSlots $ secret game
       guess <- liftIO $ runMaybeT $ askForGuess currentPlayer howMany

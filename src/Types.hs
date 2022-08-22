@@ -44,13 +44,12 @@ data Play = Play
   }
 
 makeGame :: [Player] -> Master -> Secret -> Rounds -> Game
-makeGame p m s r = Game r 0 [] [] m p s Continue
+makeGame p m s r = Game r 1 [] m p s Continue
   
 data Game = Game
   { roundsRemaining :: !Int
   , currentRound    :: !Int
   , guessesHistory  :: ![Play]
-  , fdbckHistory    :: ![Feedback]
   , master          :: !Master
   , players         :: ![Player]
   , secret          :: !Secret

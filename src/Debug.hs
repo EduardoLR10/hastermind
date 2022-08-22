@@ -3,13 +3,13 @@ module Debug where
 import Types
 
 testPlayers :: [Player]
-testPlayers = fmap makePlayer ["Eduardo", "Justin", "Jared"]
+testPlayers = fmap makePlayer ["Justin", "Jared"]
 
-testMaster = "Eduardo"
+testMaster = makePlayer "Eduardo"
 
-testRounds = 10 :: Int
+testRounds = 3 :: Int
   
 testSecret :: Secret
-testSecret = Secret 5 [Green, Red, Purple, Orange, White]
+testSecret = Secret 2 [Green, Red]
 
 testGame = makeGame testPlayers testMaster testSecret testRounds
