@@ -34,7 +34,7 @@ askForPlayers = do
   (ps :: Maybe Int) <- liftIO $ readMaybe <$> getLine
   case ps of
     Just n | n > 0 -> do
-      playerNames <- liftIO $ traverse (const getLine) [1..n]
+      playerNames <- liftIO $ traverse (\i -> printUserID i >> getLine) [1..n]
       case map makePlayer playerNames of
         [] -> MaybeT (return Nothing)
         players -> MaybeT (return (Just players))

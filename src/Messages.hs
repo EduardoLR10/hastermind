@@ -31,8 +31,8 @@ showGuess Play{..} = "| " ++ showList guess ++ spacer ++ showList fdbck ++ " |\n
 printWelcome :: IO ()
 printWelcome = putStrLn "Welcome to Hastermind! The mastermind game written in Haskell!"
 
-printPreparetionCompleted :: IO ()
-printPreparetionCompleted = putStrLn "Game configuration is set!"
+printUserID :: Int -> IO ()
+printUserID id = putStr $ "Enter Player " ++ show id ++ ": "
 
 printAskRounds :: IO ()
 printAskRounds = putStr "How many rounds you guys will play?\nRounds: "
