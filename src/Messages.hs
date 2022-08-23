@@ -4,6 +4,7 @@ module Messages where
 import Types
 import Data.List
 import System.Environment (getProgName)
+import Utils
 
 showPlayers :: [Player] -> String
 showPlayers [] = ""
@@ -81,4 +82,4 @@ printBreakerWon = putStrLn "| A codebreaker discovered the secret! |\n"
 
 printAvailableColors :: IO ()
 printAvailableColors = putStrLn $ foldMap display [minBound :: Color ..maxBound] ++ "|"
-  where display color = "| " ++ show color ++ " "
+  where display color = "| " ++ prettifyColorString (show color) ++ " "

@@ -1,6 +1,6 @@
 module Types where
 
-data Color = Green | Blue | Red | Yellow | Pink | Brown | Orange | Purple deriving (Show, Eq, Read, Enum, Bounded)
+data Color = GREEN | BLUE | RED | YELLOW | PINK | BROWN | ORANGE | PURPLE deriving (Show, Eq, Read, Enum, Bounded)
 
 type Guess  = [Color]
 type Round  = Int
@@ -57,7 +57,7 @@ data Game = Game
   }
            
 data Feedback = 
-      Black -- Token is right in color and position
-    | White -- Token is right color, wrong position
-    | None -- Token is neither right color, nor right position
+      BLACK -- Token is right in color and position
+    | WHITE -- Token is right color, wrong position
+    | NONE -- Token is neither right color, nor right position
     deriving (Read, Show)

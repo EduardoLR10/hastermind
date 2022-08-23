@@ -1,5 +1,7 @@
 module Error where
 
+import Messages
+
 errorMustBePositiveNumber :: IO ()
 errorMustBePositiveNumber = putStrLn "You must enter a positive number!"
 
@@ -13,7 +15,9 @@ errorMustPickPlayer :: IO ()
 errorMustPickPlayer = putStrLn "Invalid player! You must select a valid player!"
 
 errorMustPickColor :: IO ()
-errorMustPickColor = putStrLn "Invalid color! You must select a valid color!"
+errorMustPickColor = do
+  putStrLn "Invalid color! You must select a valid color!"
+  printAvailableColors
 
 errorInvalidPlayers :: IO ()
 errorInvalidPlayers = putStrLn "Something went wrong with the players!"

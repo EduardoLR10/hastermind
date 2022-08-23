@@ -10,6 +10,6 @@ testMaster = makePlayer "Eduardo"
 testRounds = 3 :: Int
   
 testSecret :: Secret
-testSecret = Secret 2 [Green, Red]
+testSecret = Secret 2 [GREEN, RED]
 
 testGame = makeGame testPlayers testMaster testSecret testRounds

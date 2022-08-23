@@ -17,6 +17,7 @@ import Data.Maybe
 import Data.List
 import Data.Monoid
 import Data.Foldable
+import Data.Char
 import System.Environment (getProgName)
 
 getStatus :: Guess -> Game -> GameStatus
@@ -62,6 +63,7 @@ askForSecret master = do
   (howMany :: Maybe Int) <- liftIO $ readMaybe <$> getLine
   case howMany of
     Just n | n > 0 -> do
+               liftIO printAvailableColors
                colors <- liftIO $ traverse (const askAndCheckColor) [1..n]
                MaybeT (return (Just $ makeSecret colors))
     _ -> do
@@ -70,7 +72,7 @@ askForSecret master = do
   where
     askAndCheckColor :: IO Color
     askAndCheckColor = do
-      (candidate :: Maybe Color) <- readMaybe <$> getLine
+      (candidate :: Maybe Color) <- readMaybe . map toUpper <$> getLine
       case candidate of
         Nothing -> do errorMustPickColor
                       askAndCheckColor
@@ -122,7 +124,7 @@ askForGuess player secretSize = do
   where
     askAndCheckColor :: IO Color
     askAndCheckColor = do
-      (candidate :: Maybe Color) <- readMaybe <$> getLine
+      (candidate :: Maybe Color) <- readMaybe . map toUpper <$> getLine
       case candidate of
         Nothing -> do errorMustPickColor
                       askAndCheckColor
@@ -145,9 +147,9 @@ updatePlayerScore player feedbacks = player { score = currentScore + extraScore}
         (Sum extraScore) = foldMap (Sum . feedbackToScore) feedbacks
 
 feedbackToScore :: Feedback -> Points
-feedbackToScore Black = 5
-feedbackToScore White = 2
-feedbackToScore None = 0
+feedbackToScore BLACK = 5
+feedbackToScore WHITE = 2
+feedbackToScore NONE = 0
 
 advanceGame :: Play -> Player -> Game -> Game
 advanceGame play player game = newGame
