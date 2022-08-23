@@ -8,4 +8,9 @@ It follows typcial <a href=https://en.wikipedia.org/wiki/Mastermind_(board_game)
 2. Select number of players. </br>
 3. Enter player names.</br>
 4. Enter Code Master name.</br>
-5. Master must enter the secret code.</br>
+5. Mastermind (player) must enter the secret code, and how many colors will be available.</br>
+6. Player One must enter first guess. </br>
+7. Mastermind enters feedback on Player One's guess. Enter Black for: One token is both correct color, and in right position. Enter White for: One token is correct color, but wrong position. </br>
+8. Next player enter guess. </br>
+9. Mastermind evaluates. </br>
+10. Continue as above untill a player wins or runs out of attempts. 
