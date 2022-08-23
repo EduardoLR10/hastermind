@@ -6,7 +6,7 @@ It follows typical <a href=https://en.wikipedia.org/wiki/Mastermind_(board_game)
 <h2>Hastermind Gameplay</h2>
 
 In Hastermind a Master (player) creates a secret code (a series of colors). </br>
-The Master can choose how many colors the secret will have and how many rounds the players will be allowed to guess the secret code. Players then try to guess the colors (in order) or the secret code. The Master then marks Black for the correct color in the correct position, White for the correct color in the incorrect position, and None, for neither correct color nor position. If a player guesses all correct colors in the correct positions in the number of allotted rounds they win the game. Otherwise, the Master wins.
+The Master can choose how many colors the secret will have and how many rounds the players will be allowed to guess the secret code. Players then try to guess the colors (in order) of the secret code. The Master then marks Black for the correct color in the correct position, White for the correct color in the incorrect position, and None, for neither correct color nor position. If a player guesses all correct colors in the correct positions in the number of allotted rounds they win the game. Otherwise, the Master wins.
 
 <h2>How to play</h2>
 
