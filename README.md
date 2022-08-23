@@ -5,4 +5,7 @@ It follows typcial <a href=https://en.wikipedia.org/wiki/Mastermind_(board_game)
 
 <h2>How to play</h2>
 1. Select number of rounds.</br>
-2. Select number of players
+2. Select number of players. </br>
+3. Enter player names.</br>
+4. Enter Code Master name.</br>
+5. Master must enter the secret code.</br>
