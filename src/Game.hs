@@ -63,6 +63,7 @@ askForSecret master = do
   (howMany :: Maybe Int) <- liftIO $ readMaybe <$> getLine
   case howMany of
     Just n | n > 0 -> do
+               liftIO printSelectedColors
                liftIO printAvailableColors
                colors <- liftIO $ traverse (const askAndCheckColor) [1..n]
                MaybeT (return (Just $ makeSecret colors))
@@ -120,6 +121,7 @@ prepare = do
 askForGuess :: Player -> Int -> MaybeT IO Guess
 askForGuess player secretSize = do
   liftIO $ printTakeGuess player
+  liftIO printAvailableColors
   liftIO $ traverse (const askAndCheckColor) [1..secretSize]
   where
     askAndCheckColor :: IO Color
