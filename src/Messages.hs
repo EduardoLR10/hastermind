@@ -70,7 +70,7 @@ printAskHowManyColors :: IO ()
 printAskHowManyColors = putStrLn "How many colors will the secret have?"
 
 printAskMastersFdbck :: Int -> IO ()
-printAskMastersFdbck howMany = putStrLn $ "\nMastermind, how did the codebreaker do? \nBlack = One token is both correct color, and in right position \nWhite = One token is correct color, but wrong position \nNone = Neither position or color are correct \nYou have " ++ show howMany ++ " slots for feedback! \n Enter them one at a time."
+printAskMastersFdbck howMany = putStrLn $ "\nMaster, how did the codebreaker do? \nBlack = One token is both correct color, and in right position \nWhite = One token is correct color, but wrong position \nNone = Neither position or color are correct \nYou have " ++ show howMany ++ " slots for feedback! \nEnter them one at a time."
 
 printEndGame :: IO ()
 printEndGame = putStrLn "| END GAME |"
