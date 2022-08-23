@@ -17,6 +17,7 @@ import Data.Maybe
 import Data.List
 import Data.Monoid
 import Data.Foldable
+import System.Environment (getProgName)
 
 getStatus :: Guess -> Game -> GameStatus
 getStatus guess game = do
@@ -86,36 +87,33 @@ askForRounds = do
       liftIO errorMustBeEvenRounds
       askForRounds
         
-prepare :: StateT Game (MaybeT IO) PrepStatus
+prepare :: MaybeT IO Game
 prepare = do
+  liftIO printWelcome
   players <- liftIO (runMaybeT askForPlayers)
   case players of
     Nothing -> do
       liftIO errorInvalidPlayers
-      return ErrorInPrep
+      hoistMaybe Nothing
     Just allPlayers -> do
       roles <- liftIO (runMaybeT $ askForMaster allPlayers)
       case roles of
         Nothing -> do
           liftIO errorInvalidMaster
-          return ErrorInPrep
+          hoistMaybe Nothing
         Just (m, ps) -> do
           secret <- liftIO (runMaybeT $ askForSecret m)
           case secret of
             Nothing -> do
               liftIO errorInvalidSecret
-              return ErrorInPrep
+              hoistMaybe Nothing
             Just s -> do
               rounds <- liftIO (runMaybeT askForRounds)
               case rounds of
                 Nothing -> do
                   liftIO errorInvalidRounds
-                  return ErrorInPrep
-                Just r -> do
-                  game <- get
-                  let newGame = makeGame ps m s r
-                  put newGame
-                  return Prepared
+                  hoistMaybe Nothing
+                Just r -> hoistMaybe (Just $ makeGame ps m s r)
 
 askForGuess :: Player -> Int -> MaybeT IO Guess
 askForGuess player secretSize = do
@@ -203,18 +201,5 @@ play = do
               play
     error -> return error              
     
-hastermind :: StateT Game (MaybeT IO) ()
-hastermind = do
-  liftIO printWelcome
-  prepared <- prepare
-  case prepared of
-    ErrorInPrep -> do
-      liftIO errorInPreparation
-      return ()
-    Prepared -> do
-      initialGame <- get
-      status <- liftIO $ runGame play initialGame
-      return ()
-
-runGame :: StateT Game (MaybeT IO) a -> Game -> IO (Maybe (a, Game))
-runGame play init = runMaybeT $ runStateT play init
+runGame :: Game -> IO (Maybe (GameStatus, Game))
+runGame init = runMaybeT $ runStateT play init

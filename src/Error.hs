@@ -30,6 +30,9 @@ errorInvalidRounds = putStrLn "Something went wrong with the selecting a number 
 errorInPreparation :: IO ()
 errorInPreparation = putStrLn "Something went wrong during preparation!"
 
+errorDuringGame :: IO ()
+errorDuringGame = putStrLn "Something went wrong during the game!"
+
 errorInvalidGuess :: IO ()
 errorInvalidGuess = putStrLn "Something went wrong when taking a guess!"
 
