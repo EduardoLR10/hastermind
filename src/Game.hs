@@ -135,6 +135,7 @@ askForGuess player secretSize = do
 askMasterFdbck :: Secret -> MaybeT IO [Feedback] 
 askMasterFdbck secret = do
     let howMany = numberSlots secret
+    -- print players guess here 
     liftIO $ printAskMastersFdbck howMany
     (maybeFdbcks :: [Maybe Feedback]) <-  liftIO $ replicateM howMany (readMaybe . map toUpper <$> getLine)
     let fdbcks = catMaybes maybeFdbcks
