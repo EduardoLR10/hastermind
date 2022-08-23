@@ -4,4 +4,5 @@ Hastermind, the mastermind game written in Haskell, was created by <a href= http
 It follows typcial <a href=https://en.wikipedia.org/wiki/Mastermind_(board_game)>Mastermind</a> gamplay. 
 
 <h2>How to play</h2>
-
+1. Select number of rounds.</br>
+2. Select number of players
