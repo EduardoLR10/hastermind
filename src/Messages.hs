@@ -60,7 +60,7 @@ printTakeGuess :: Player -> IO ()
 printTakeGuess player = putStrLn $ "Player " ++ show (name player) ++ "! It is your round! Take your guess!\nYour options are: (Enter colors, one at a time)."
 
 printCallForMaster :: Master -> IO ()
-printCallForMaster master = putStrLn $ "Master " ++ show master ++ "! You shall pick your secret code!"
+printCallForMaster master = putStrLn $ "Master " ++ show (name master) ++ "! You shall pick your secret code!"
 
 printChooseColor :: IO ()
 printChooseColor = putStrLn "Available Colors:"
