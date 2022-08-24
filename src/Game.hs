@@ -65,26 +65,26 @@ askForSecret master = do
     Just n | n > 0 -> do
                liftIO printSelectedColors
                liftIO printAvailableColors
-               colors <- liftIO $ traverse (const askAndCheckColor) [1..n]
+               colors <- liftIO $ traverse (const (askAndCheckColor errorMustPickColor)) [1..n]
                MaybeT (return (Just $ makeSecret colors))
     _ -> do
       liftIO errorMustBePositiveNumber
       askForSecret master
-  where
-    askAndCheckColor :: IO Color
-    askAndCheckColor = do
-      (candidate :: Maybe Color) <- readMaybe . map toUpper <$> getLine
-      case candidate of
-        Nothing -> do errorMustPickColor
-                      askAndCheckColor
-        Just color -> return color
+
+askAndCheckColor :: Read a => IO () -> IO a
+askAndCheckColor errorMessage = do
+   (candidate :: Maybe a) <- readMaybe . map toUpper <$> getLine
+   case candidate of
+     Nothing -> do errorMessage
+                   askAndCheckColor errorMessage
+     Just color -> return color
 
 askForRounds :: MaybeT IO Rounds
 askForRounds = do
   liftIO printAskRounds
   (howMany :: Maybe Int) <- liftIO $ readMaybe <$> getLine
   case howMany of
-    Just n | even n -> do
+    Just n | even n && n > 0 -> do
                hoistMaybe howMany
     _ -> do
       liftIO errorMustBeEvenRounds
@@ -132,12 +132,12 @@ askForGuess player secretSize = do
                       askAndCheckColor
         Just color -> return color
 
-askMasterFdbck :: Secret -> MaybeT IO [Feedback] 
-askMasterFdbck secret = do
+askMasterFdbck :: Secret -> Guess -> MaybeT IO [Feedback] 
+askMasterFdbck secret guess = do
     let howMany = numberSlots secret
-    -- print players guess here 
+    liftIO $ printCurrentGuess guess
     liftIO $ printAskMastersFdbck howMany
-    (maybeFdbcks :: [Maybe Feedback]) <-  liftIO $ replicateM howMany (readMaybe . map toUpper <$> getLine)
+    (maybeFdbcks :: [Maybe Feedback]) <-  liftIO $ traverse (const (askAndCheckColor errorMustPickFeedback)) [1..howMany]
     let fdbcks = catMaybes maybeFdbcks
     if length fdbcks == howMany
       then hoistMaybe $ Just fdbcks
@@ -192,7 +192,7 @@ play = do
           liftIO errorInvalidGuess
           return GuessError
         Just g -> do
-          feedback <- liftIO (runMaybeT $ askMasterFdbck (secret game))
+          feedback <- liftIO (runMaybeT $ askMasterFdbck (secret game) g)
           case feedback of
             Nothing -> do
               liftIO errorInvalidFeedback

@@ -16,8 +16,13 @@ errorMustPickPlayer = putStrLn "Invalid player! You must select a valid player!"
 
 errorMustPickColor :: IO ()
 errorMustPickColor = do
-  putStrLn "Invalid color! You must select a valid color!"
+  putStrLn "Invalid color! You must select a valid color option!"
   printAvailableColors
+
+errorMustPickFeedback :: IO ()
+errorMustPickFeedback = do
+  putStrLn "Invalid feedback! You must select a valid feedback option!"
+  printAvailableFeedback
 
 errorInvalidPlayers :: IO ()
 errorInvalidPlayers = putStrLn "Something went wrong with the players!"

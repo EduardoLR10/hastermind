@@ -60,4 +60,4 @@ data Feedback =
       BLACK -- Token is right in color and position
     | WHITE -- Token is right color, wrong position
     | NONE -- Token is neither right color, nor right position
-    deriving (Read, Show)
+    deriving (Read, Show, Enum, Bounded)

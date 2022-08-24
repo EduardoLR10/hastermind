@@ -72,6 +72,10 @@ printAskHowManyColors = putStrLn "How many colors will the secret have?"
 printAskMastersFdbck :: Int -> IO ()
 printAskMastersFdbck howMany = putStrLn $ "\nMaster, how did the codebreaker do? \nBlack = One token is both correct color, and in right position \nWhite = One token is correct color, but wrong position \nNone = Neither position or color are correct \nYou have " ++ show howMany ++ " slots for feedback! \nEnter them one at a time."
 
+printCurrentGuess :: Guess -> IO ()
+printCurrentGuess guess = putStrLn $ "\nHere is the current guess!\n" ++ foldMap display guess ++ "|"
+  where display color = "| " ++ prettifyColorString (show color) ++ " "
+
 printEndGame :: IO ()
 printEndGame = putStrLn "| END GAME |"
 
@@ -89,4 +93,8 @@ printSelectedColors = putStrLn "Enter the secret code colors (max is 8)! One col
 
 printAvailableColors :: IO ()
 printAvailableColors = putStrLn $ foldMap display [minBound :: Color ..maxBound] ++ "|"
+  where display color = "| " ++ prettifyColorString (show color) ++ " "
+
+printAvailableFeedback :: IO ()
+printAvailableFeedback = putStrLn $ foldMap display [minBound :: Feedback ..maxBound] ++ "|"
   where display color = "| " ++ prettifyColorString (show color) ++ " "
