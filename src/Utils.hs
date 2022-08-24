@@ -30,34 +30,34 @@ winnerToString Nothing = "There was no winner!\n"
 winnerToString (Just Player{..}) = "The winner was " ++ name ++ "!\n"
 
 gameToString :: Game -> String
-gameToString Game{..} = foldMap (++ "\n\n") [sRoundsPlayed, sMaster, sSecret, sPlays, sPlayers]
-  where sRoundsPlayed = roundsToString (currentRound - 1)
-        sMaster = masterToString master
-        sSecret = secretToString secret
-        sPlays = playsToString playHistory
-        sPlayers = foldMap (playerToString Full) players
+gameToString Game{..} = fold [sRoundsPlayed, sMaster, sSecret, sPlays, sPlayers]
+  where sRoundsPlayed = roundsToString (currentRound - 1) ++ "\n\n"
+        sMaster = masterToString master ++ "\n\n"
+        sSecret = secretToString secret ++ "\n\n"
+        sPlays = playsToString playHistory ++ "\n"
+        sPlayers = foldMap (playerToString Full) players ++ "\n"
 
 playerToString :: PlayerInfo -> Player -> String
 playerToString Partial Player{..} =
-  "Player " ++ name ++ "\n"
+  "Player: " ++ name ++ "\n"
 playerToString Full Player{..} =
   "Player " ++ name ++ " ended with final score of " ++ show score ++ "\n"
 
 playsToString :: [Play] -> String
 playsToString = foldMap playToString
   where playToString Play{..} = fold [playerString player, guessToString guess, feedbackToString fdbck]
-        playerString =  playerToString Partial
+        playerString = playerToString Partial
         guessToString g = "Guess: " ++ colorsToString g ++ "\n"
-        feedbackToString f = "Master's feedback: " ++ colorsToString f
+        feedbackToString f = "Master's feedback: " ++ colorsToString f ++ "\n"
 
 secretToString :: Secret -> String
 secretToString Secret{..} = "The master chose the secret: " ++ colorsToString secretCode
 
 colorsToString :: Show a => [a] -> String
-colorsToString = foldMap (\c -> show c ++ " ")
+colorsToString = foldMap (\s -> prettifyColorString (show s) ++ " ")
 
 masterToString :: Master -> String
-masterToString Player{..} = "The master for this game was " ++ name ++ " and master's final score was " ++ show score
+masterToString Player{..} = "The master for this game was " ++ name ++ " and the master's final score was " ++ show score
 
 roundsToString :: Int -> String
 roundsToString r = "The game was played for " ++ show r ++ " rounds!"

@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE BangPatterns #-}
 module Game where
 import System.Random
 import Control.Monad.State
@@ -36,9 +37,7 @@ askForPlayers = do
   case ps of
     Just n | n > 0 -> do
       playerNames <- liftIO $ traverse (\i -> printUserID i >> getLine) [1..n]
-      case map makePlayer playerNames of
-        [] -> MaybeT (return Nothing)
-        players -> MaybeT (return (Just players))
+      hoistMaybe $ mapM makePlayer playerNames
     _ ->  do
       liftIO errorMustBePositiveNumber
       askForPlayers
@@ -134,19 +133,28 @@ askMasterFdbck master secret guess = do
       then hoistMaybe $ Just fdbcks
       else hoistMaybe Nothing
 
-updatePlayerScore :: Player -> [Feedback] -> Player
-updatePlayerScore player feedbacks = player { score = currentScore + extraScore}
+updatePlayerScore :: Player -> PlayerType -> [Feedback] -> Player
+updatePlayerScore player pType feedbacks = player { score = currentScore + extraScore}
   where currentScore = score player
-        (Sum extraScore) = foldMap (Sum . feedbackToScore) feedbacks
+        (Sum extraScore) = foldMap (Sum . feedbackToScore pType) feedbacks
 
-feedbackToScore :: Feedback -> Points
-feedbackToScore BLACK = 5
-feedbackToScore WHITE = 2
-feedbackToScore NONE = 0
+feedbackToScore :: PlayerType -> Feedback -> Points
+feedbackToScore CodeBreaker = breakerFeedback
+feedbackToScore CodeMaker = makerFeedback
 
-advanceGame :: Play -> Player -> Game -> Game
-advanceGame play player game = newGame
-  where newGame = game { roundsRemaining = r, currentRound = c, playHistory = p, status = s, players = ps}
+makerFeedback :: Feedback -> Points
+makerFeedback BLACK = 0
+makerFeedback WHITE = 0
+makerFeedback NONE = 2
+
+breakerFeedback :: Feedback -> Points
+breakerFeedback BLACK = 7
+breakerFeedback WHITE = 5
+breakerFeedback NONE = 0
+
+advanceGame :: Play -> Player -> Master -> Game -> Game
+advanceGame play player m game = newGame
+  where newGame = game { roundsRemaining = r, currentRound = c, playHistory = p, status = s, players = ps, master = m}
         r = roundsRemaining game - 1
         c = currentRound game + 1
         p = playHistory game ++ [play]
@@ -189,9 +197,10 @@ play = do
               liftIO errorInvalidFeedback
               return (FeedbackError, Nothing)
             Just f -> do
-              let previousPlay = Play g f currentPlayer
-                  newPlayer = updatePlayerScore currentPlayer f
-                  newGame = advanceGame previousPlay newPlayer game
+              let !newPlayer = updatePlayerScore currentPlayer CodeBreaker f
+                  currentPlay = Play g f newPlayer
+                  newMaster = updatePlayerScore (master game) CodeMaker f
+                  newGame = advanceGame currentPlay newPlayer newMaster game
               put newGame
               play
     error -> return (error, Nothing)              

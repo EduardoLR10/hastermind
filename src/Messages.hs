@@ -16,18 +16,14 @@ showCurrentRound game = putStr $ "\n\n| Round: " ++ show (currentRound game) ++ 
 
 showRoundAndBoard :: Game -> IO ()
 showRoundAndBoard game = showCurrentRound game >> putStrLn (secretInfo ++ board ++ "\n")
-  where board = foldMap showGuess $ playHistory game
+  where board = foldMap showPlay $ playHistory game
         secretInfo = showSecretInfo $ secret game
 
 showSecretInfo :: Secret -> String
 showSecretInfo (Secret n _) = "The secret has " ++ show n ++ " slots! |\n"
 
-showGuess :: Play -> String
-showGuess Play{..} = "| " ++ showList guess ++ spacer ++ showList fdbck ++ " |\n"
-  where
-    spacer = " || "
-    showList :: Show a => [a] -> String
-    showList = foldMap (\c -> " " ++ show c)
+showPlay :: Play -> String
+showPlay Play{..} = "| Player: " ++ name player ++ " || Score: " ++ show (score player) ++ " || Guess: " ++ colorsToString guess ++ "|| Feedback: " ++ colorsToString fdbck ++ "|\n"
 
 printWelcome :: IO ()
 printWelcome = putStrLn "\nWelcome to Hastermind! The Mastermind game written in Haskell!"

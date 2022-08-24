@@ -1,7 +1,13 @@
 # Hastermind
 
 Hastermind, the mastermind game written in Haskell, was created by <a href= https://github.com/EduardoLR10> Eduardo Lemos Rocha</a>, <a href=https://github.com/Nothnbutthefacts>Nothing But the Facts</a>, and <a href=https://github.com/blockthrasher>Justin Cummins, A.K.A Blockthrasher</a>, as the final Haskell project for <a href=https://education.emurgo.io/>Emurgo Academy</a>, and the first <a href=https://www.dapp360.io/>DApp360 Blockchain Developer Workforce</a> Cohort.
-It follows typical <a href=https://en.wikipedia.org/wiki/Mastermind_(board_game)>Mastermind</a> gamplay. 
+It follows typical <a href=https://en.wikipedia.org/wiki/Mastermind_(board_game)>Mastermind</a> gameplay, but it is slightly modified.
+
+<h2>Hastermind Modifications</h2>
+
+1. The codemaker (also called <i>master</i>) gains points when he provides feedback <b>None</b> to the code breakers.
+2. The codebreakers gain points from <b>Black</b> and <b>White</b> feedbacks from the code maker.
+3. Points are used to determin the winner if the game goes out of rounds.
 
 <h2>Hastermind Gameplay</h2>
 

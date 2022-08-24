@@ -1,11 +1,12 @@
 module Debug where
 
 import Types
+import Data.Maybe
 
 testPlayers :: [Player]
-testPlayers = fmap makePlayer ["Justin", "Jared"]
+testPlayers = fromJust $ mapM makePlayer ["Justin", "Jared"]
 
-testMaster = makePlayer "Eduardo"
+testMaster = fromJust $ makePlayer "Eduardo"
 
 testRounds = 3 :: Int
   

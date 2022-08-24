@@ -10,6 +10,8 @@ type Name   = String
 type Master = Player
 type Points = Int
 
+data PlayerType = CodeBreaker | CodeMaker
+
 data Player = Player
   { name        :: !String
   , score       :: !Int
@@ -21,8 +23,9 @@ instance Eq Player where
 instance Ord Player where
  (Player _ s1) <= (Player _ s2) = s1 <= s2
 
-makePlayer :: Name -> Player
-makePlayer name = Player name 0
+makePlayer :: Name -> Maybe Player
+makePlayer "" = Nothing
+makePlayer name = Just $ Player name 0
 
 data GameStatus = BreakerWin | Continue | OutOfRounds | GuessError | FeedbackError
 
@@ -40,7 +43,7 @@ data Play = Play
   { guess  :: !Guess
   , fdbck  :: ![Feedback]
   , player :: !Player
-  }
+  } deriving Show
 
 makeGame :: [Player] -> Master -> Secret -> Rounds -> Game
 makeGame p m s r = Game r 1 [] m p s Continue
