@@ -48,12 +48,12 @@ askForMaster players = do
   liftIO printMasterSelection
   liftIO printChooseMaster
   candidateName <- liftIO getLine
-  let candidate = find (\(Player name _ _) -> name == candidateName) players
+  let candidate = find (\(Player name _) -> name == candidateName) players
   case candidate of
     Nothing -> do
        liftIO errorMustPickPlayer
        askForMaster players
-    Just c -> hoistMaybe $ Just (c {timesMaster = timesMaster c + 1}, filter (/= c) players)
+    Just c -> hoistMaybe $ Just (c, filter (/= c) players)
 
 askForSecret :: Master -> MaybeT IO Secret
 askForSecret master = do
@@ -65,18 +65,18 @@ askForSecret master = do
     Just n | n > 0 -> do
                liftIO printSelectedColors
                liftIO printAvailableColors
-               colors <- liftIO $ traverse (const (askAndCheckColor errorMustPickColor)) [1..n]
+               colors <- liftIO $ traverse (\id -> askAndCheckColor id "Color" errorMustPickColor) [1..n]
                MaybeT (return (Just $ makeSecret colors))
     _ -> do
       liftIO errorMustBePositiveNumber
       askForSecret master
 
-askAndCheckColor :: Read a => IO () -> IO a
-askAndCheckColor errorMessage = do
-   (candidate :: Maybe a) <- readMaybe . map toUpper <$> getLine
+askAndCheckColor :: Read a => Int -> String -> IO () -> IO a
+askAndCheckColor identifier which errorMessage = do
+   (candidate :: Maybe a) <- readMaybe . map toUpper <$> (printColorID identifier which >> getLine)
    case candidate of
      Nothing -> do errorMessage
-                   askAndCheckColor errorMessage
+                   askAndCheckColor identifier which errorMessage
      Just color -> return color
 
 askForRounds :: MaybeT IO Rounds
@@ -122,23 +122,14 @@ askForGuess :: Player -> Int -> MaybeT IO Guess
 askForGuess player secretSize = do
   liftIO $ printTakeGuess player
   liftIO printAvailableColors
-  liftIO $ traverse (const askAndCheckColor) [1..secretSize]
-  where
-    askAndCheckColor :: IO Color
-    askAndCheckColor = do
-      (candidate :: Maybe Color) <- readMaybe . map toUpper <$> getLine
-      case candidate of
-        Nothing -> do errorMustPickColor
-                      askAndCheckColor
-        Just color -> return color
+  liftIO $ traverse (\id -> askAndCheckColor id "Color" errorMustPickColor) [1..secretSize]
 
-askMasterFdbck :: Secret -> Guess -> MaybeT IO [Feedback] 
-askMasterFdbck secret guess = do
+askMasterFdbck :: Master -> Secret -> Guess -> MaybeT IO [Feedback] 
+askMasterFdbck master secret guess = do
     let howMany = numberSlots secret
     liftIO $ printCurrentGuess guess
-    liftIO $ printAskMastersFdbck howMany
-    (maybeFdbcks :: [Maybe Feedback]) <-  liftIO $ traverse (const (askAndCheckColor errorMustPickFeedback)) [1..howMany]
-    let fdbcks = catMaybes maybeFdbcks
+    liftIO $ printAskMastersFdbck master howMany 
+    (fdbcks :: [Feedback]) <-  liftIO $ traverse (\id -> askAndCheckColor id "Feedback" errorMustPickFeedback) [1..howMany]
     if length fdbcks == howMany
       then hoistMaybe $ Just fdbcks
       else hoistMaybe Nothing
@@ -155,14 +146,14 @@ feedbackToScore NONE = 0
 
 advanceGame :: Play -> Player -> Game -> Game
 advanceGame play player game = newGame
-  where newGame = game { roundsRemaining = r, currentRound = c, guessesHistory = g, status = s, players = ps}
+  where newGame = game { roundsRemaining = r, currentRound = c, playHistory = p, status = s, players = ps}
         r = roundsRemaining game - 1
         c = currentRound game + 1
-        g = guessesHistory game ++ [play]
+        p = playHistory game ++ [play]
         s = getStatus (guess play) game
         ps = tail (players game) ++ [player]
 
-play :: StateT Game (MaybeT IO) GameStatus
+play :: StateT Game (MaybeT IO) (GameStatus, Maybe Player)
 play = do
   game <- get
   case status game of
@@ -172,16 +163,16 @@ play = do
           winnerName = name winner
       liftIO $ printWinner winnerName
       liftIO printEndGame
-      return OutOfRounds
+      return (OutOfRounds, Just winner)
     BreakerWin -> do
       liftIO printBreakerWon
-      let guesses = guessesHistory game
-          lastGuess = head guesses
+      let plays = playHistory game
+          lastGuess = head plays
           winner = player lastGuess
           winnerName = name winner
       liftIO $ printWinner winnerName
       liftIO printEndGame
-      return BreakerWin
+      return (BreakerWin, Just winner)
     Continue -> do
       liftIO $ showRoundAndBoard game
       let currentPlayer = head $ players game
@@ -190,20 +181,20 @@ play = do
       case guess of
         Nothing -> do
           liftIO errorInvalidGuess
-          return GuessError
+          return (GuessError, Nothing)
         Just g -> do
-          feedback <- liftIO (runMaybeT $ askMasterFdbck (secret game) g)
+          feedback <- liftIO (runMaybeT $ askMasterFdbck (master game) (secret game) g)
           case feedback of
             Nothing -> do
               liftIO errorInvalidFeedback
-              return FeedbackError
+              return (FeedbackError, Nothing)
             Just f -> do
               let previousPlay = Play g f currentPlayer
                   newPlayer = updatePlayerScore currentPlayer f
                   newGame = advanceGame previousPlay newPlayer game
               put newGame
               play
-    error -> return error              
+    error -> return (error, Nothing)              
     
-runGame :: Game -> IO (Maybe (GameStatus, Game))
+runGame :: Game -> IO (Maybe ((GameStatus, Maybe Player), Game))
 runGame init = runMaybeT $ runStateT play init

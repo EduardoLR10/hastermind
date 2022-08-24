@@ -19,7 +19,7 @@ main = do
       case postStatus of
         Nothing ->
           errorDuringGame
-        Just (s, g) -> do
-          saveGame s g
+        Just ((s, w), g) -> do
+          saveGame w s g
           return ()
 

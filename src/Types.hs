@@ -13,17 +13,16 @@ type Points = Int
 data Player = Player
   { name        :: !String
   , score       :: !Int
-  , timesMaster :: !Int
   } deriving Show
 
 instance Eq Player where
-  (Player n1 s1 tM1) == (Player n2 s2 tM2) = n1 == n2 && s1 == s2 && tM1 == tM2
+  (Player n1 s1) == (Player n2 s2) = n1 == n2 && s1 == s2
 
 instance Ord Player where
- (Player _ s1 _) <= (Player _ s2 _) = s1 <= s2
+ (Player _ s1) <= (Player _ s2) = s1 <= s2
 
 makePlayer :: Name -> Player
-makePlayer name = Player name 0 0
+makePlayer name = Player name 0
 
 data GameStatus = BreakerWin | Continue | OutOfRounds | GuessError | FeedbackError
 
@@ -49,7 +48,7 @@ makeGame p m s r = Game r 1 [] m p s Continue
 data Game = Game
   { roundsRemaining :: !Int
   , currentRound    :: !Int
-  , guessesHistory  :: ![Play]
+  , playHistory  :: ![Play]
   , master          :: !Master
   , players         :: ![Player]
   , secret          :: !Secret
