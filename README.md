@@ -6,8 +6,8 @@ It follows typical <a href=https://en.wikipedia.org/wiki/Mastermind_(board_game)
 <h2>Hastermind Modifications</h2>
 
 1. The codemaker (also called <i>master</i>) gains points when he provides feedback <b>None</b> to the code breakers.
-2. The codebreakers gain points from <b>Black</b> and <b>White</b> feedbacks from the code maker.
-3. Points are used to determin the winner if the game goes out of rounds.
+2. The codebreakers gain points from <b>Black</b> and <b>White</b> feedback from the code maker.
+3. Points are used to determine the winner if the game goes out of rounds.
 
 <h2>Hastermind Gameplay</h2>
 
